@@ -108,13 +108,9 @@ def fetch_stock_data(stock, start_date, end_date):
                 print(f"Error fetching price for {future_date}: {e}")
                 return np.nan
 
-        # Apply the function to calculate prices 6 months later
+
         stock_df['Price 6 Months Later'] = stock_df.apply(get_price_6_months_later, axis=1)
-
-        # Calculate the percentage change
         stock_df['Price Change (%)'] = ((stock_df['Price 6 Months Later'] - stock_df['Close']) / stock_df['Close']) * 100
-
-        # Classify stock
         stock_df['Label'] = stock_df.apply(classify_stock, axis=1)
 
         # Save the data to CSV
@@ -434,8 +430,6 @@ print(X_ts)
 print(y_ts)
 
 # Split Data into Train and Test Sets
-
-
 X_train_fund, X_test_fund, y_train_fund, y_test_fund = train_test_split(X_fund, y_fund, train_ratio=0.8)
 X_train_ts, X_test_ts, y_train_ts, y_test_ts = train_test_split(X_ts, y_ts, train_ratio=0.8)
 
@@ -444,10 +438,9 @@ y_train_ts = to_categorical(y_train_ts, num_classes=num_classes)
 y_test_ts = to_categorical(y_test_ts, num_classes=num_classes)
 
 
-print(f"y_train_ts shape: {y_train_ts.shape}")  # Should be (samples, num_classes)
+print(f"y_train_ts shape: {y_train_ts.shape}")
 print(f"y_test_ts shape: {y_test_ts.shape}")
 
-# Verify Data Shapes
 print(f"X_train_fund: {X_train_fund.shape}, X_test_fund: {X_test_fund.shape}")
 print(f"X_train_ts: {X_train_ts.shape}, X_test_ts: {X_test_ts.shape}")
 print(f"y_train: {y_train_ts.shape}, y_test: {y_test_ts.shape}")
@@ -485,7 +478,7 @@ x_combined = Dense(64, activation='relu', kernel_regularizer=l2_reg, name='Dense
 x_combined = Dropout(0.2, name='Combined_Dropout')(x_combined)
 output = Dense(num_classes, activation='softmax', name='Final_Output')(x_combined)
 
-# === Step 5: Build and Train the Hybrid Model === #
+
 combined_model = Model(inputs=[input_ts, encoded_fund_general], outputs=output, name='Hybrid_Model')
 combined_model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
 
@@ -505,9 +498,9 @@ history = combined_model.fit(
 class_names = ['Strong Buy', 'Buy', 'Hold', 'Sell', 'Strong Sell']
 
 # Predictions
-y_pred = combined_model.predict([X_test_ts, X_test_fund_general])  # Predict using test data
-y_pred_classes = np.argmax(y_pred, axis=1)  # Convert softmax output to class indices
-y_test_classes = np.argmax(y_test_ts, axis=1)  # Convert one-hot encoded labels back to class indices
+y_pred = combined_model.predict([X_test_ts, X_test_fund_general])
+y_pred_classes = np.argmax(y_pred, axis=1)
+y_test_classes = np.argmax(y_test_ts, axis=1)
 
 # Classification Report
 print("Classification Report:")
